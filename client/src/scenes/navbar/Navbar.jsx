@@ -45,7 +45,7 @@ const Navbar = () => {
           fontWeight="bold"
           fontSize="clamp(1rem, 2rem, 2.25rem)"
           color="green"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           sx={{
             "&:hover": {
               color: primaryLight,
@@ -83,7 +83,7 @@ const Navbar = () => {
           <Message sx={{ fontSize: "25px" }} />
           <Notifications sx={{ fontSize: "25px" }} />
           <Help sx={{ fontSize: "25px" }} />
-          <FormControl value="Abdul">
+          <FormControl value={fullName}>
             <Select
               value={fullName}
               sx={{
@@ -95,7 +95,7 @@ const Navbar = () => {
               input={<InputBase />}
             >
               <MenuItem value={fullName}>
-                <Typography>{fullName}</Typography>
+                <Typography>{user.firstName}</Typography>
               </MenuItem>
               <MenuItem onClick={() => dispatch(setLogout())}>Logout</MenuItem>
             </Select>
@@ -117,7 +117,7 @@ const Navbar = () => {
           right="0"
           bottom="0"
           height="100%"
-          zIndex="100%"
+          zIndex="20"
           maxWidth="500px"
           minWidth="300px"
           backgroundColor={primaryLight}
@@ -159,7 +159,7 @@ const Navbar = () => {
                 input={<InputBase />}
               >
                 <MenuItem value={fullName}>
-                  <Typography>{fullName}</Typography>
+                  <Typography>{user.firstName}</Typography>
                 </MenuItem>
                 <MenuItem onClick={() => dispatch(setLogout())}>
                   Logout

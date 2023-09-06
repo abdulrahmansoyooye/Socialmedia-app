@@ -1,7 +1,8 @@
+import { Input } from "@mui/icons-material";
 import React from "react";
 
 const ProfilePage = () => {
-  return <div>Profile</div>;
+  return;
 };
 
 export default ProfilePage;

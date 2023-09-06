@@ -26,7 +26,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 app.use(express.json());
 app.use(helmet());
-app.use(helmet.crossOriginResourcePolicy());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
@@ -35,11 +35,10 @@ app.use(cors());
 // File Storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "/public/assets");
+    cb(null, "public/assets/");
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + "-" + uniqueSuffix);
+    cb(null, file.originalname);
   },
 });
 

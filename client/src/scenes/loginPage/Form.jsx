@@ -52,7 +52,7 @@ const Form = () => {
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
-  const theme = useTheme();
+  const { palette } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [picture, setPicture] = useState("");
@@ -62,8 +62,6 @@ const Form = () => {
       values
     );
     onSubmitProps.resetForm();
-    console.log(loggedIn);
-    console.log(loggedIn.status === 200);
     if (loggedIn) {
       dispatch(
         setLogin({
@@ -80,6 +78,7 @@ const Form = () => {
       for (const value in values) {
         formData.append(value, values[value]);
       }
+      formData.append("picturePath", picture.name);
       formData.append("picture", picture);
       const savedUser = axios.post(
         "http://localhost:3001/auth/register",
@@ -190,12 +189,12 @@ const Form = () => {
                   }}
                   {...getRootProps()}
                 >
-                  <TextField {...getInputProps()}>
-                    {isDragActive && (
-                      <Typography>upload or drag STL files</Typography>
-                    )}
-                  </TextField>
-                  <Typography>Upload your picture</Typography>
+                  <input {...getInputProps()}></input>
+                  {picture === "" ? (
+                    <Typography>Upload your picture</Typography>
+                  ) : (
+                    <Typography>{picture.name}</Typography>
+                  )}
                 </Box>
                 <TextField
                   type="text"
@@ -256,6 +255,8 @@ const Form = () => {
               sx={{
                 m: "2rem 0",
                 p: "1rem",
+
+                backgroundColor: palette.primary.light,
               }}
             >
               {isLogin ? "LOGIN" : "REGISTER"}
