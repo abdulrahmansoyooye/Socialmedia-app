@@ -45,7 +45,7 @@ const MyPosts = ({ picturePath }) => {
     }
     try {
       const response = await axios.post(
-        "http://localhost:3001/posts",
+        "https://socialmedia-numu.onrender.com/posts",
         formData,
         {
           headers: {
@@ -55,6 +55,9 @@ const MyPosts = ({ picturePath }) => {
       );
       const posts = await response.data;
       dispatch(setPosts({ posts }));
+      setValue("");
+      setImage(null);
+      setIsImage(false);
     } catch (err) {
       console.error(err);
     }
@@ -69,8 +72,8 @@ const MyPosts = ({ picturePath }) => {
         }}
         mb="2rem"
       >
-        <FlexBetween>
-          <UserImage image={picturePath}></UserImage>
+        <FlexBetween gap="1rem">
+          {picturePath && <UserImage image={picturePath} />}
 
           <InputBase
             placeholder="What's on your mind?"

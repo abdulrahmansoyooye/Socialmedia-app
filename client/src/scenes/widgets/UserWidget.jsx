@@ -16,14 +16,19 @@ import UserImage from "components/UserImage";
 import WidgetWrapper from "components/WidgetWrapper";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const UserWidget = ({ userId, picturePath }) => {
   const [user, setUser] = useState([]);
   const token = useSelector((state) => state.token);
+  const navigate = useNavigate();
   const getUser = async () => {
-    const response = await axios.get(`http://localhost:3001/users/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await axios.get(
+      `https://socialmedia-numu.onrender.com/users/${userId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
     setUser(response.data);
   };
   useEffect(() => {
@@ -41,11 +46,16 @@ const UserWidget = ({ userId, picturePath }) => {
     impression,
   } = user;
   return (
-    <WidgetWrapper>
+    <WidgetWrapper
+      onClick={() => navigate(`/profile/${userId}`)}
+      style={{
+        cursor: "pointer",
+      }}
+    >
       {/* First Row */}
       <FlexBetween gap="0.5rem" padding="1.1rem">
         <FlexBetween gap="1rem">
-          <UserImage image={picturePath} />
+          {picturePath === "" ? null : <UserImage image={picturePath} />}
           <Typography fontWeight="500">
             {firstName} {lastName}
           </Typography>

@@ -9,7 +9,7 @@ const UserImage = ({ image, size = "60px" }) => {
         alt="user"
         height={size}
         width={size}
-        src={`http://localhost:3001/assets/${image}`}
+        src={`https://socialmedia-numu.onrender.com/assets/${image}`}
       />
     </Box>
   );

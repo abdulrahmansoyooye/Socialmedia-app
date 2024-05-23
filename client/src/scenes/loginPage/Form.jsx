@@ -9,7 +9,9 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import axios from "axios";
+import Error from "components/Error/Error";
 import FlexBetween from "components/FlexBetweenComponents";
+import Loader from "components/Loader/Loader";
 import { ErrorMessage, Formik } from "formik";
 import React, { useState } from "react";
 import Dropzone, { useDropzone } from "react-dropzone";
@@ -22,8 +24,7 @@ const registerSchema = Yup.object().shape({
   lastName: Yup.string().required("Last Name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+  .required("Password is required"),
   occupation: Yup.string().required("Occupation is required"),
   location: Yup.string().required("Location is required"),
 });
@@ -56,23 +57,33 @@ const Form = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [picture, setPicture] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const handleLogin = async (values, onSubmitProps) => {
-    const loggedIn = await axios.post(
-      "http://localhost:3001/auth/login",
-      values
-    );
-    onSubmitProps.resetForm();
-    if (loggedIn) {
-      dispatch(
-        setLogin({
-          user: loggedIn.data.user,
-          token: loggedIn.data.token,
-        })
+    setLoading(true);
+    try {
+      const loggedIn = await axios.post(
+        "https://socialmedia-numu.onrender.com/auth/login",
+        values
       );
-      navigate("/home");
+      onSubmitProps.resetForm();
+      if (loggedIn.status === 200) {
+        dispatch(
+          setLogin({
+            user: loggedIn.data.user,
+            token: loggedIn.data.token,
+          })
+        );
+        navigate("/home");
+        setLoading(false);
+      }
+    } catch (err) {
+      setLoading(false);
+      setError(true);
     }
   };
   const handleRegister = async (values, onSubmitProps) => {
+    setLoading(true);
     try {
       const formData = new FormData();
       for (const value in values) {
@@ -80,16 +91,19 @@ const Form = () => {
       }
       formData.append("picturePath", picture.name);
       formData.append("picture", picture);
-      const savedUser = axios.post(
-        "http://localhost:3001/auth/register",
+      const savedUser = await axios.post(
+        "https://socialmedia-numu.onrender.com/auth/register",
         formData
       );
       onSubmitProps.resetForm();
-      if (savedUser) {
+      setLoading(false);
+      if (savedUser.status === 201) {
         setPageType("login");
       }
     } catch (err) {
       console.error(err);
+      setLoading(false);
+      setError(true);
     }
   };
   const handleFormSubmit = async (values, onSubmitProps) => {
@@ -103,184 +117,195 @@ const Form = () => {
     onDrop,
   });
   return (
-    <Formik
-      initialValues={isLogin ? LogiInitialValues : RegisterInitialValues}
-      validationSchema={isLogin ? loginSchema : registerSchema}
-      onSubmit={handleFormSubmit}
-    >
-      {({
-        handleSubmit,
-        handleBlur,
-        handleChange,
-        values,
-        errors,
-        touched,
-        isSubmitting,
-        setFieldValue,
-      }) => (
-        <form onSubmit={handleSubmit}>
-          <Box
-            display="grid"
-            gap="20px"
-            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-            sx={{
-              div: {
-                gridColumn: isNonMobileScreens ? undefined : "span 4",
-              },
-            }}
-          >
-            {isRegister ? (
-              <>
-                <TextField
-                  label="First Name"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.firstName}
-                  name="firstName"
-                  sx={{
-                    gridColumn: "span 2",
-                  }}
-                />
-                <ErrorMessage
-                  name="firstName"
-                  component="div"
-                  className="error"
-                />
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <Formik
+          initialValues={isLogin ? LogiInitialValues : RegisterInitialValues}
+          validationSchema={isLogin ? loginSchema : registerSchema}
+          onSubmit={handleFormSubmit}
+        >
+          {({
+            handleSubmit,
+            handleBlur,
+            handleChange,
+            values,
+            errors,
+            touched,
+            isSubmitting,
+            setFieldValue,
+          }) => (
+            <form onSubmit={handleSubmit}>
+              <Box
+                display="grid"
+                gap="20px"
+                gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                sx={{
+                  div: {
+                    gridColumn: isNonMobileScreens ? undefined : "span 4",
+                  },
+                }}
+              >
+                {isRegister ? (
+                  <>
+                    {error && <Error message="Try using a different email" />}
+                    <TextField
+                      label="First Name"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.firstName}
+                      name="firstName"
+                      sx={{
+                        gridColumn: "span 2",
+                      }}
+                      required
+                    />
 
-                <TextField
-                  label="Last Name"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.lastName}
-                  name="lastName"
-                  sx={{
-                    gridColumn: "span 2",
-                  }}
-                />
-                <TextField
-                  label="Email"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.email}
-                  name="email"
-                  sx={{
-                    gridColumn: "span 4",
-                  }}
-                />
+                    <TextField
+                      label="Last Name"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.lastName}
+                      name="lastName"
+                      sx={{
+                        gridColumn: "span 2",
+                      }}
+                      required
+                    />
+                    <TextField
+                      label="Email"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.email}
+                      name="email"
+                      sx={{
+                        gridColumn: "span 4",
+                      }}
+                      required
+                    />
 
-                <TextField
-                  type="password"
-                  label="Password"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.password}
-                  name="password"
+                    <TextField
+                      type="password"
+                      label="Password"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.password}
+                      name="password"
+                      sx={{
+                        gridColumn: "span 4",
+                      }}
+                      required
+                    />
+                    <Box
+                      gridColumn="span 4"
+                      border={`1px solid `}
+                      borderRadius="5px"
+                      p="1rem"
+                      sx={{
+                        backgroundColor: "#0000",
+                      }}
+                      {...getRootProps()}
+                    >
+                      <input {...getInputProps()}></input>
+                      {picture === "" ? (
+                        <Typography>Upload your picture</Typography>
+                      ) : (
+                        <Typography>{picture.name}</Typography>
+                      )}
+                    </Box>
+                    <TextField
+                      type="text"
+                      label="Location"
+                      name="location"
+                      value={values.location}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      sx={{
+                        gridColumn: "span 4",
+                      }}
+                      required
+                    />
+                    <TextField
+                      type="text"
+                      label="Occupation"
+                      name="occupation"
+                      value={values.occupation}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      sx={{
+                        gridColumn: "span 4",
+                      }}
+                      required
+                    />
+                  </>
+                ) : (
+                  <>
+                    {error && <Error message="Invalid Login Credentials" />}
+                    <TextField
+                      type="text"
+                      label="Email"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.email}
+                      name="email"
+                      sx={{
+                        gridColumn: "span 2",
+                      }}
+                      required
+                    />
+                    <TextField
+                      type="password"
+                      label="Password"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.password}
+                      name="password"
+                      sx={{
+                        gridColumn: "span 2",
+                      }}
+                      required
+                    />
+                  </>
+                )}
+              </Box>
+
+              {/* Button */}
+              <Box>
+                <Button
+                  fullWidth
+                  type="submit"
                   sx={{
-                    gridColumn: "span 4",
+                    m: "2rem 0",
+                    p: "1rem",
+                    color: "#fff",
+                    backgroundColor: "#004AAD",
                   }}
-                />
-                <Box
-                  gridColumn="span 4"
-                  border={`1px solid `}
-                  borderRadius="5px"
-                  p="1rem"
-                  sx={{
-                    backgroundColor: "#0000",
-                  }}
-                  {...getRootProps()}
                 >
-                  <input {...getInputProps()}></input>
-                  {picture === "" ? (
-                    <Typography>Upload your picture</Typography>
-                  ) : (
-                    <Typography>{picture.name}</Typography>
-                  )}
-                </Box>
-                <TextField
-                  type="text"
-                  label="Location"
-                  name="location"
-                  value={values.location}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  sx={{
-                    gridColumn: "span 4",
+                  {isLogin ? "LOGIN" : "REGISTER"}
+                </Button>
+                <Typography
+                  onClick={() => {
+                    isLogin ? setPageType("register") : setPageType("login");
                   }}
-                />
-                <TextField
-                  type="text"
-                  label="Occupation"
-                  name="occupation"
-                  value={values.occupation}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
                   sx={{
-                    gridColumn: "span 4",
+                    textDecoration: "underline",
+                    "&:hover": {
+                      cursor: "pointer",
+                    },
                   }}
-                />
-              </>
-            ) : (
-              <>
-                <TextField
-                  type="text"
-                  label="Email"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.email}
-                  name="email"
-                  sx={{
-                    gridColumn: "span 2",
-                  }}
-                />
-                <TextField
-                  type="password"
-                  label="Password"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.password}
-                  name="password"
-                  sx={{
-                    gridColumn: "span 2",
-                  }}
-                />
-              </>
-            )}
-          </Box>
-
-          {/* Button */}
-          <Box>
-            <Button
-              fullWidth
-              type="submit"
-              sx={{
-                m: "2rem 0",
-                p: "1rem",
-
-                backgroundColor: palette.primary.light,
-              }}
-            >
-              {isLogin ? "LOGIN" : "REGISTER"}
-            </Button>
-            <Typography
-              onClick={() => {
-                isLogin ? setPageType("register") : setPageType("login");
-              }}
-              sx={{
-                textDecoration: "underline",
-                "&:hover": {
-                  cursor: "pointer",
-                },
-              }}
-              textAlign="center"
-            >
-              {isLogin
-                ? "Don't have an account? Sign Up here."
-                : "Already have an account? Login here."}
-            </Typography>
-          </Box>
-        </form>
+                  textAlign="center"
+                >
+                  {isLogin
+                    ? "Don't have an account? Sign Up here."
+                    : "Already have an account? Login here."}
+                </Typography>
+              </Box>
+            </form>
+          )}
+        </Formik>
       )}
-    </Formik>
+    </>
   );
 };
 

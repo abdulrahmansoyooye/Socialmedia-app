@@ -10,7 +10,7 @@ const LoginPage = () => {
     <div>
       <Box>
         <Box width="100%" backgroundColor={alt} p="1rem 6%" textAlign="center">
-          <Typography fontWeight="bold" fontSize="32px" color="green">
+          <Typography fontWeight="bold" fontSize="32px" color="#004AAD">
             Bryte Developers Network
           </Typography>
         </Box>
@@ -21,8 +21,13 @@ const LoginPage = () => {
           borderRadius="1.5rem"
           backgroundColor={alt}
         >
-          <Typography fontWeight="500" variant="h5" sx={{ mb: "1.5rem" }}>
-            Join the leading developers.
+          <Typography
+            fontWeight="400"
+            variant="h5"
+            sx={{ mb: "1.5rem" }}
+            color="#004AAD"
+          >
+            Join the leading developers
           </Typography>
           <Form />
         </Box>

@@ -5,8 +5,11 @@ import Friends from "components/Friends";
 import WidgetWrapper from "components/WidgetWrapper";
 import React from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Navbar from "scenes/navbar/Navbar";
 import ProfilePage from "scenes/profilePage/ProfilePage";
+import AllUsers from "scenes/widgets/AllUsers";
+import FriendWidget from "scenes/widgets/FriendWidget";
 import MyPosts from "scenes/widgets/MyPosts";
 import PostsWidget from "scenes/widgets/PostsWidget";
 import UserWidget from "scenes/widgets/UserWidget";
@@ -15,6 +18,7 @@ import state from "state";
 const HomePage = () => {
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const { _id, picturePath } = useSelector((state) => state.user);
+
   return (
     <Box>
       <Navbar />
@@ -31,15 +35,7 @@ const HomePage = () => {
           }}
         >
           <UserWidget userId={_id} picturePath={picturePath} />
-
-          <WidgetWrapper mt="1rem">
-            <Typography fontWeight="600" variant="h4" mb="1rem">
-              Freinds List
-            </Typography>
-            <Divider />
-            <Friends />
-            <Friends />
-          </WidgetWrapper>
+          <AllUsers />
         </Box>
 
         <Box
@@ -49,7 +45,16 @@ const HomePage = () => {
           }}
         >
           <MyPosts picturePath={picturePath} />
-          {/* <PostsWidget /> */}
+          <PostsWidget />
+        </Box>
+
+        <Box
+          mt={isNonMobileScreens ? undefined : "2rem "}
+          sx={{
+            flexBasis: isNonMobileScreens ? "26%" : undefined,
+          }}
+        >
+          <FriendWidget />
         </Box>
       </Box>
     </Box>
